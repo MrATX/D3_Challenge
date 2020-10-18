@@ -97,6 +97,15 @@ function updateToolTip(chosenXAxis,circlesGroup) {
       toolTip.hide(data);
     });
   return circlesGroup;
+};
+//Update State Labels
+//****************************************
+function updateCirclelabelsX(circleLabels,newXscale,chosenXAxis){
+  circleLabels.transition()
+    .duration(1000)
+    .attr("x",d=>newXscale(d[chosenXAxis]) + margin.left)
+    .text(d=>d.abbr);
+  return circleLabels;
 }
 
 //Retrieve Data
@@ -117,7 +126,6 @@ d3.csv("data/data.csv").then(popData => {
   var xLinearScale = xScale(popData,chosenXAxis);
   //Set y Scale
   var yLinearScale = yScale(popData,chosenYAxis);
-  console.log(yLinearScale)
   //Initial Axes
   var bottomAxis = d3.axisBottom(xLinearScale);
   var leftAxis = d3.axisLeft(yLinearScale);
@@ -141,7 +149,21 @@ d3.csv("data/data.csv").then(popData => {
     .attr("opacity", 0.6)
     .attr("stroke", "black");
   //Append State Abbrs to Circles
-  svg.append("g")
+  // svg.append("g")
+  //   .attr("text-anchor", "middle")
+  //   .selectAll("text")
+  //   .data(popData)
+  //   .join("text")
+  //   .attr("id", "abbr")
+  //   .attr("dy", "0.35em")
+  //   .attr("x", d =>  xLinearScale(d[chosenXAxis]) + margin.left)
+  //   .attr("y", d => yLinearScale(d[chosenYAxis]) + margin.top)
+  //   .attr("font-size", "10px")
+  //   .attr("fill", "gold")
+  //   .text(d => d.abbr);
+
+  //Append State Abbrs to cirlces ALT TRY
+  var circleLabels = svg.append("g")
     .attr("text-anchor", "middle")
     .selectAll("text")
     .data(popData)
@@ -153,6 +175,8 @@ d3.csv("data/data.csv").then(popData => {
     .attr("font-size", "10px")
     .attr("fill", "gold")
     .text(d => d.abbr);
+
+
   //Create group for multiple x Axis labels
   var xlabelsGroup = chartGroup.append("g")
     .attr("transform", `translate(${width / 2}, ${height + 20})`);
@@ -183,21 +207,21 @@ d3.csv("data/data.csv").then(popData => {
     .attr("dy", "1em")
     .attr("value","healthcare")
     .classed("active", true)
-    .text("Lacks Healthcare (%)")
+    .text("Lacks Healthcare (%)");
   var smokesLabel = ylabelsGroup.append("text")
     .attr("y", 20 - margin.left)
     .attr("x", 0 - (height/2))
     .attr("dy", "1em")
     .attr("value","smokes")
     .classed("inactive", true)
-    .text("Smokes (%)")
+    .text("Smokes (%)");
   var obsesityLabel = ylabelsGroup.append("text")
     .attr("y", 0 - margin.left)
     .attr("x", 0 - (height/2))
     .attr("dy", "1em")
     .attr("value","obesity")
     .classed("inactive", true)
-    .text("Obesity (%)")
+    .text("Obesity (%)");
 
 //Update ToolTip
 var circlesGroup = updateToolTip(chosenXAxis,circlesGroup);
@@ -212,6 +236,7 @@ xlabelsGroup.selectAll("text")
       xAxis = renderxAxes(xLinearScale, xAxis);
       circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
       circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
+      circleLabels = updateCirclelabelsX(circleLabels,xLinearScale,chosenXAxis);
       if (chosenXAxis==="poverty"){
         povertyLabel
           .classed("active",true)
